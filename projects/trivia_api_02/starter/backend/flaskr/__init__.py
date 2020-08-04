@@ -25,7 +25,7 @@ def create_app(test_config=None):
     '''
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     '''
-    CORS(app)
+    CORS(app, resources={'/': {'origins': '*'}})
     '''
     @TODO: Use the after_request decorator to set Access-Control-Allow
     '''
@@ -45,11 +45,10 @@ def create_app(test_config=None):
         selection = Category.query.all()
         if len(selection) == 0:
             abort(404)
-
+        categories = {category.id: category.type for category in selection}
         return jsonify({
           'success': True,
-          'categories': selection,
-          'total_questions': len(selection)
+          'categories': categories#[category.format() for category in selection],
 
         })
     '''
@@ -68,12 +67,15 @@ def create_app(test_config=None):
     def get_questions():
         selection = Question.query.order_by(Question.id).all()
         current_questions = paginate_questions(request, selection)
-        if len(selection) == 0:
+        category_selection = Category.query.all()
+        categories = {category.id: category.type for category in category_selection}
+        if len(current_questions) == 0:
             abort(404)
         return jsonify({
-          'success': True,
-          'questions': current_questions,
-          'total_questions': len(Question.query.all())
+            'success': True,
+            'questions': current_questions,
+            'totalQuestions': len(Question.query.all()),
+            'categories': categories
 
         })
 
@@ -147,17 +149,17 @@ def create_app(test_config=None):
     '''
     @app.route('/questions/search', methods=['POST'])
     def search_questions():
-        body = request.get_json()
-        phrase = body.get('question', None)
         try:
+            body = request.get_json()
+            phrase = body.get('SearchTerm')
             selection = Question.query.filter(Question.question.ilike("%{}%".format(phrase))).all()
             current_questions = paginate_questions(request, selection)
             return jsonify({
               'success': True,
               'questions': current_questions,
-              'total_searched': len(current_questions)
+              'total_questions': len(current_questions)
             })
-        except Exception as error:
+        except Exception:
             abort(422)
     '''
     @TODO: 
@@ -168,16 +170,16 @@ def create_app(test_config=None):
     category to be shown. 
     '''
 
-    @app.route("/questions/<str:category>", methods=['GET'])
-    def get_questions_by_category(category):
-        selection = Question.query.filter(Question.category == category).all()
+    @app.route("/categories/<int:category_id>/questions", methods=['GET'])
+    def get_questions_by_category(category_id):
+        selection = Question.query.filter(Question.category == category_id).all()
         current_questions = paginate_questions(request, selection)
 
         if len(selection) == 0:
             abort(404)
         return jsonify({
             'success': True,
-            'category': category,
+            'category': category_id,
             'questions': current_questions,
             'total_questions': len(Question.query.all())
 
@@ -194,12 +196,54 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not. 
     '''
+    @app.route('/quizzes', methods=['POST'])
+    def get_quiz_question():
+        try:
+            body = request.get_json()
+
+            previous_questions = body.get('previous_questions')
+            category = body.get('quiz_category')
+
+            def get_random_question(questions):
+                return questions[random.randint(0, len(questions)-1)]
+            category_id = category['id']
+            if int(category_id) == 0:
+                questions = Question.query.all()
+            else:
+                questions = Question.query.filter(Question.category == int(category_id)).all()
+
+
+            if len(previous_questions) == len(questions):
+                return jsonify({
+                    'success': True
+                        })
+
+            question = get_random_question(questions)
+            while question in questions:
+                question = get_random_question(questions)
+
+            print(question.format())
+            return jsonify({
+                "success": True,
+                "question": question.format()
+            })
+        except Exception:
+            abort(400)
 
     '''
     @TODO: 
     Create error handlers for all expected errors 
     including 404 and 422. 
     '''
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            "success": False,
+            "error": 400,
+            "message": "bad request"
+        }), 400
+
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({

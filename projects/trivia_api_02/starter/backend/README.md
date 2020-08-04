@@ -66,29 +66,100 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
-
+## API Reference
 Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
 
 GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
+- Example: `curl http://127.0.0.1:5000/categories`
+-Output: `{'success': True, "categories": {'1' : "Science",
 '2' : "Art",
 '3' : "Geography",
 '4' : "History",
 '5' : "Entertainment",
-'6' : "Sports"}
+'6' : "Sports"}}`
 
-```
+GET '/questions'
+- Fetches a list of questions with answers, difficulty, and category id
+- Request Arguments: None
+- Example: `curl http://127.0.0.1:5000/questions`
+-Output: `{'success': True, 'question': {'question' : "How long is the trip from LA to SF?",
+'answer' : "a long time",
+'category' : 1,
+difficulty : 3,
+"id": 1
+}, "totalQuestions": 1, "categories":{'1' : "Science",
+'2' : "Art",
+'3' : "Geography",
+'4' : "History",
+'5' : "Entertainment",
+'6' : "Sports"}}`}`
 
+POST '/questions'
+- Adds a question to the API
+- Request Arguments: question, answer, difficulty, category
+- Returns: An object with a the question, total questions, success message and the created question id
+- Example: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d 
+'{"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1"}`
+
+- Output: `{'success' : True,
+"created": 1, "questions": "{"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1", "id": 1}, "total_questions": 1}`
+`
+
+DELETE '/questions/(question_id)'
+- Deletes a question from the API.
+- Returns: An object with a success boolean and deleted question id
+- Example: `curl http://127.0.0.1:5000/questions/1 -X DELETE`
+-Output: `{"success" True, "deleted": 1}`
+
+POST '/questions/search'
+- Fetches a dictionary of categories in which the search phrase is similar to the question.
+- Request Arguments: Phrase
+- Returns: An object with one or several questions found.
+- Example: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm": "California"}`
+- Output: `{
+              'success': True,
+              'questions': {"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1, "id": 1},
+              'total_questions': 1
+            }`
+            
+GET '/categories/(int:id)/questions'
+- Fetches a dictionary of questions within said category.
+- Request Arguments: None
+- Returns: An object with one or several questions found.
+- Example: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm": "California"}`
+- Output: `
+            'success': True,
+            'category': 1,
+            'questions':  {"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1, "id": 1},
+            'total_questions': 1)
+            }`            
+            
+POST '/quizzes'
+- Fetches a new question for the user to answer based on previous answers.
+- Request Arguments: Previous answers, category
+- Returns: An object with one new questions in the specified category.
+- Example: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions": [1], "quiz_category": {"type": "Science", "id": "1"}}`
+- Output: `{
+       "success": True
+      "question": {
+          "question": "What time zone is California in?"
+          "answer": "Pacific Daylight Time", 
+          "category": 1, 
+          "difficulty": 4, 
+          "id": 4, 
+      }, 
+      "success": true
+  }
+`
+##Error Codes
+The error codes utilized are as followed:
+
+- 400 (Bad Request)
+- 404 (Resource Not Found)
+- 422 (Unproccessable)
 
 ## Testing
 To run the tests, run
