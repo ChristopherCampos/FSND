@@ -4,19 +4,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
 
-from backend.models import setup_db, Question, Category
+from models import setup_db, Question, Category # May need to change to models instead of backend.models or vice versa
 
 QUESTIONS_PER_PAGE = 10
 
 
 def paginate_questions(request, question_selection):
     page = request.args.get('page', 1, type=int)
-    start = (page -1) * QUESTIONS_PER_PAGE
+    start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
     questions = [question.format() for question in question_selection]
     paginated_questions = questions[start:end]
 
     return paginated_questions
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -29,17 +30,20 @@ def create_app(test_config=None):
     '''
     @TODO: Use the after_request decorator to set Access-Control-Allow
     '''
+
     @app.after_request
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
+
     '''
     @TODO: 
     Create an endpoint to handle GET requests 
     for all available categories.
     '''
+
     @app.route("/categories", methods=['GET'])
     def get_categories():
         selection = Category.query.all()
@@ -47,10 +51,12 @@ def create_app(test_config=None):
             abort(404)
         categories = {category.id: category.type for category in selection}
         return jsonify({
-          'success': True,
-          'categories': categories#[category.format() for category in selection],
+            'success': True,
+            'categories': categories
+            # [category.format() for category in selection],
 
         })
+
     '''
     @TODO: 
     Create an endpoint to handle GET requests for questions, 
@@ -63,6 +69,7 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions. 
     '''
+
     @app.route("/questions", methods=['GET'])
     def get_questions():
         selection = Question.query.order_by(Question.id).all()
@@ -100,8 +107,9 @@ def create_app(test_config=None):
                 'question_id': question_id
 
             })
-        except Exception as error:
+        except Exception:
             abort(422)
+
     '''
     @TODO: 
     Create an endpoint to POST a new question, 
@@ -112,31 +120,50 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.  
     '''
+
     @app.route("/questions", methods=['POST'])
     def create_question():
         body = request.get_json()
-        new_question_string = body.get('question', None)
-        new_answer_string = body.get('answer', None)
-        new_category_string = body.get('category', None)
-        new_difficulty_string = body.get('difficulty', None)
+        if body.get('question') and body.get('answer') and body.get('category') and body.get('difficulty'):
+            new_question_string = body.get('question')
+            new_answer_string = body.get('answer')
+            new_category_string = body.get('category')
+            new_difficulty_string = body.get('difficulty')
 
-        try:
-            new_question = Question(question=new_question_string, answer=new_answer_string,
-                                    category=new_category_string, difficulty=new_difficulty_string)
-            new_question.insert()
+            try:
+                new_question = Question(question=new_question_string, answer=new_answer_string,
+                                        category=new_category_string, difficulty=new_difficulty_string)
+                new_question.insert()
 
-            selection = Question.query.order_by(Question.id).all()
-            current_questions = paginate_questions(request, selection)
+                selection = Question.query.order_by(Question.id).all()
+                current_questions = paginate_questions(request, selection)
 
-            return jsonify({
-              'success': True,
-              'created': new_question.id,
-              'questions': current_questions,
-              'total_questions': len(Question.query.all())
+                return jsonify({
+                    'success': True,
+                    'created': new_question.id,
+                    'questions': current_questions,
+                    'total_questions': len(Question.query.all())
+                })
+            except Exception as error:
+                abort(422)
 
-            })
-        except Exception as error:
+        elif body.get('searchTerm'):
+            try:
+                phrase = body.get('searchTerm')
+                search_phrase = "%{0}%".format(phrase)
+                selection = Question.query.filter(Question.question.ilike(search_phrase)).all()
+                current_questions = paginate_questions(request, selection)
+                return jsonify({
+                    'success': True,
+                    'questions': current_questions,
+                    'total_questions': len(selection)
+                })
+            except Exception as error:
+                abort(422)
+
+        else:
             abort(422)
+
     '''
     @TODO: 
     Create a POST endpoint to get questions based on a search term. 
@@ -147,20 +174,7 @@ def create_app(test_config=None):
     only question that include that string within their question. 
     Try using the word "title" to start. 
     '''
-    @app.route('/questions/search', methods=['POST'])
-    def search_questions():
-        try:
-            body = request.get_json()
-            phrase = body.get('SearchTerm')
-            selection = Question.query.filter(Question.question.ilike("%{}%".format(phrase))).all()
-            current_questions = paginate_questions(request, selection)
-            return jsonify({
-              'success': True,
-              'questions': current_questions,
-              'total_questions': len(current_questions)
-            })
-        except Exception:
-            abort(422)
+
     '''
     @TODO: 
     Create a GET endpoint to get questions based on category. 
@@ -196,38 +210,46 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not. 
     '''
+
     @app.route('/quizzes', methods=['POST'])
     def get_quiz_question():
         try:
             body = request.get_json()
 
-            previous_questions = body.get('previous_questions')
-            category = body.get('quiz_category')
+            previous_questions = body.get('previous_questions', None)
+            category = body.get('quiz_category', None)
 
-            def get_random_question(questions):
-                return questions[random.randint(0, len(questions)-1)]
-            category_id = category['id']
-            if int(category_id) == 0:
-                questions = Question.query.all()
+            if category is None:
+                abort(422)
+            category_id = int(category['id'])
+
+            if category_id == 0:
+                questions = Question.query.order_by(Question.id).all()
             else:
                 questions = Question.query.filter(Question.category == int(category_id)).all()
 
+            if previous_questions is not None:
+                if len(previous_questions) == len(questions):
+                    return jsonify({
+                        "success": True
+                    })
 
-            if len(previous_questions) == len(questions):
-                return jsonify({
-                    'success': True
-                        })
+            def get_random_question(questions_possible):
+                return questions_possible[random.randint(0, len(questions) - 1)]
 
-            question = get_random_question(questions)
-            while question in questions:
+            if previous_questions == [] or previous_questions is None:
                 question = get_random_question(questions)
+            else:
+                question = get_random_question(questions)
+                while question.id in previous_questions:
+                    question = get_random_question(questions)
 
             print(question.format())
             return jsonify({
                 "success": True,
                 "question": question.format()
             })
-        except Exception:
+        except Exception as error:
             abort(400)
 
     '''
@@ -264,5 +286,5 @@ def create_app(test_config=None):
 
 
 if __name__ == '__main__':
-    app = create_app()
+    app = create_app()  # runs without using EXPORT command in cmd line.
     app.run()

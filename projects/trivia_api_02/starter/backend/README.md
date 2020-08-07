@@ -102,10 +102,10 @@ POST '/questions'
 - Request Arguments: question, answer, difficulty, category
 - Returns: An object with a the question, total questions, success message and the created question id
 - Example: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d 
-'{"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1"}`
+'{"question": "How long is the sentence?", "answer" : "A sentence long", "difficulty": 2, "category": 1"}`
 
 - Output: `{'success' : True,
-"created": 1, "questions": "{"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1", "id": 1}, "total_questions": 1}`
+"created": 1, "questions": "{"question": "How long is the sentence?", "answer" : "A sentence long", "difficulty": 2, "category": 1", "id": 1}, "total_questions": 1}`
 `
 
 DELETE '/questions/(question_id)'
@@ -121,7 +121,7 @@ POST '/questions/search'
 - Example: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm": "California"}`
 - Output: `{
               'success': True,
-              'questions': {"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1, "id": 1},
+              'questions': {"question": "How long is the sentence?", "answer" : "A sentence long", "difficulty": 2, "category": 1, "id": 1},
               'total_questions': 1
             }`
             
@@ -133,7 +133,7 @@ GET '/categories/(int:id)/questions'
 - Output: `
             'success': True,
             'category': 1,
-            'questions':  {"question": "How long is the sentance?", "answer" : "A sentance long", "difficulty": 2, "category": 1, "id": 1},
+            'questions':  {"question": "How large is California?", "answer" : "Big Enough", "difficulty": 2, "category": 1, "id": 1},
             'total_questions': 1)
             }`            
             

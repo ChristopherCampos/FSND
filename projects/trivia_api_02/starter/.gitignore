@@ -6,6 +6,7 @@ venv
 ######################
 .DS_Store
 .DS_Store?
+.pytest_cache
 ._*
 .Spotlight-V100
 .Trashes
