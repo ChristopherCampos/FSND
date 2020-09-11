@@ -4,8 +4,9 @@ from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-#Completely skips the authentication check and any other checks
-#https://chris-campos.us.auth0.com/authorize?audience=coffee&response_type=token&client_id=M7Z7hlMKty4pbkgwQOLacIzoMDGqDcXX&redirect_uri=http://localhost:8080/
+# https://chris-campos.us.auth0.com/authorize?audience=
+# coffee&response_type=token&client_id=M7Z7hlMKty4pbkgwQOLacIzoMDGqDcXX&
+# redirect_uri=http://localhost:5000/
 AUTH0_DOMAIN = 'chris-campos.us.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'coffee'
@@ -65,7 +66,8 @@ def get_token_auth_header():
 
     it should raise an AuthError if permissions are not included in the payload
         !!NOTE check your RBAC settings in Auth0
-    it should raise an AuthError if the requested permission string is not in the payload permissions array
+    it should raise an AuthError if the requested permission string
+     is not in the payload permissions array
     return true otherwise
 '''
 
@@ -80,7 +82,7 @@ def check_permissions(permission, payload):
         raise AuthError({
             'code': 'unauthorized',
             'description': 'Permission not found.'
-        }, 403)
+        }, 401)
     return True
 
 
@@ -95,7 +97,9 @@ def check_permissions(permission, payload):
     it should validate the claims
     return the decoded payload
 
-    !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
+    !!NOTE urlopen has a common certificate error described here: 
+    https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-
+    verify-failed-error-for-http-en-wikipedia-org
 '''
 
 
@@ -172,17 +176,18 @@ def requires_auth(permission=''):
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
             payload = verify_decode_jwt(token)
-            check_permissions(permission, payload)
+            if not check_permissions(permission, payload):
+                abort(401)
             return f(payload, *args, **kwargs)
-
         return wrapper
     return requires_auth_decorator
 
-def auth(permission, token):
-    payload = verify_decode_jwt(token)
-    check_permissions(permission, payload)
 
-auth(regular, 'get:drink-details')
-#auth(manager, 'delete:drinks')
-#auth(barista, 'get:drink-details')
-
+def auth(permission=""):
+    try:
+        token = get_token_auth_header()
+        payload = verify_decode_jwt(token)
+        check_permissions(permission, payload)
+        return True
+    except Exception:
+        return False
