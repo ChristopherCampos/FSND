@@ -3,7 +3,7 @@ from sqlalchemy import Column, String, Integer
 from flask_sqlalchemy import SQLAlchemy
 import json
 
-database_filename = "menu.db"
+database_filename = "database.db"
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_path = "sqlite:///{}".format(os.path.join(project_dir, database_filename))
 
@@ -25,11 +25,13 @@ class MenuItem(db.Model):
     """Database object for a menu item."""
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    recipe = Column(String(180), nullable=False)
+    ingredients = Column(String(180), nullable=False)
+    price = Column(Integer, nullable=False)
 
-    def __init__(self, name, recipe, category):
+    def __init__(self, name, ingredients, price, category):
         self.name = name
-        self.recipe = recipe
+        self.ingredients = ingredients
+        self.price = price
         self.category = category
 
     def insert(self):
@@ -47,7 +49,8 @@ class MenuItem(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'recipe': json.loads(self.recipe),
+            'price': self.price,
+            'ingredients': json.loads(self.ingredients),
             'category': self.category
         }
 

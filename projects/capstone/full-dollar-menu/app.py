@@ -1,7 +1,6 @@
-import os
-from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from .models import setup_db, MenuItem, Category
+from flask import Flask, abort, jsonify
+from .database.models import setup_db, MenuItem, Category
+from .auth.auth import requires_auth
 from flask_cors import CORS
 
 
