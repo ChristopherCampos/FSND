@@ -61,6 +61,10 @@ class FDMTestCase(unittest.TestCase):
                                                                  'xkooAxKAp5ytB5uqt268JGgrOPbX2mgyvUNZa1KkhpQpAFtBkWQBb'
                                                                  'Gz5etUt7pidiD9sb4KGlngzy6AYvNBgJEJdVhdlbow_38Cui0wqJG'
                                                                  'UZ9lo4br_aXGJJEtIVlyRAchg_-3vSjxM3yx2pLxcjoRw')}
+        if os.environ['CHEF_TOKEN']:
+            self.chef_header = {'Authorization': "Bearer {}".format(os.environ['CHEF_TOKEN'])}
+        if os.environ['OWNER_TOKEN']:
+            self.owner_header = {'Authorization': "Bearer {}".format(os.environ['OWNER_TOKEN'])}
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
