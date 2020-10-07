@@ -4,7 +4,7 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 from app import create_app
 from models import setup_db, MenuItem, Category
-#https://chris-campos.us.auth0.com/authorize?audience=fdm&response_type=token&client_id=3dAm6kZYfeaCxH6ehGUHR3V6MMrbXlj0&redirect_uri=http://0.0.0.0:8080/menu/
+#https://chris-campos.us.auth0.com/authorize?audience=fdm&response_type=token&client_id=3dAm6kZYfeaCxH6ehGUHR3V6MMrbXlj0&redirect_uri=https://full-dollar-menu.herokuapp.com/menu
 
 
 class FDMTestCase(unittest.TestCase):
@@ -28,43 +28,12 @@ class FDMTestCase(unittest.TestCase):
         self.category = {
             "type": "breakfast"
         }
-        self.chef_header = {'Authorization': 'Bearer {}'.format('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZDV042Tn'
-                                                                'NTa21jU293ajliZVMtVCJ9.eyJpc3MiOiJodHRwczovL2NocmlzLWN'
-                                                                'hbXBvcy51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWY3Y2Q2'
-                                                                'ZGE4MTU1MWYwMDZlNDMwYmY2IiwiYXVkIjoiZmRtIiwiaWF0Ijox'
-                                                                'NjAyMDE3NTcyLCJleHAiOjE2MDIwMjQ3NzIsImF6cCI6IjNkQW02a'
-                                                                '1pZZmVhQ3hINmVoR1VIUjNWNk1NcmJYbGowIiwic2NvcGUiOiIiLCJ'
-                                                                'wZXJtaXNzaW9ucyI6WyJkZWxldGU6bWVudV9pdGVtIiwiZ2V0OmNhd'
-                                                                'GVnb3JpZXMiLCJnZXQ6bWVudV9pdGVtIiwicGF0Y2g6bWVudV9pdGV'
-                                                                'tIiwicG9zdDptZW51X2l0ZW0iXX0.Sb3pKDh0jRDLveLPdl7Pop4-a'
-                                                                'r3S1nlYn9OhdJE9YwGSHaqjVbGFRjOkOSmjNCFuQjUHN9KQW8mquDn'
-                                                                '4bUgUyh6eILwMkQqkDFsh7Rsvs3nOp1kW2mjFTYj7inFMN28fpxiAN'
-                                                                'CiyUbr0hyxNN06GV1iF_snhjUuEC7WrITHJabCyJxvZysemWjXew4H'
-                                                                'B8aOcrfuZ5aEGv-yRVY44MQLm12SqtoHo12ZhciiK22HB795LGepCs'
-                                                                'ecjeCO0OLUmBsHleZWg8nBYhH3SbJ3PjeTKJIsvIJZcckIKRUC2jqR'
-                                                                'GDS6f74CBqCcCXthVHt3Al7rLh4xrhk8wqUIaovSGJZIkcQ')}
-        self.owner_header = {'Authorization': 'Bearer {}'.format('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZDV042T'
-                                                                 'nNTa21jU293ajliZVMtVCJ9.eyJpc3MiOiJodHRwczovL2NocmlzL'
-                                                                 'WNhbXBvcy51cy5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdX'
-                                                                 'RoMnwxMTE4NDQ5MzUzNjc3ODE3Mjk3OTgiLCJhdWQiOlsiZmRtIiw'
-                                                                 'iaHR0cHM6Ly9jaHJpcy1jYW1wb3MudXMuYXV0aDAuY29tL3VzZXJp'
-                                                                 'bmZvIl0sImlhdCI6MTYwMjAxNzcwOSwiZXhwIjoxNjAyMDI0OTA5L'
-                                                                 'CJhenAiOiIzZEFtNmtaWWZlYUN4SDZlaEdVSFIzVjZNTXJiWGxqMC'
-                                                                 'IsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXN'
-                                                                 'zaW9ucyI6WyJkZWxldGU6Y2F0ZWdvcmllcyIsImRlbGV0ZTptZW51'
-                                                                 'X2l0ZW0iLCJnZXQ6Y2F0ZWdvcmllcyIsImdldDptZW51X2l0ZW0iL'
-                                                                 'CJwYXRjaDptZW51X2l0ZW0iLCJwb3N0OmNhdGVnb3JpZXMiLCJwb3'
-                                                                 'N0Om1lbnVfaXRlbSJdfQ.ethcB36E6f5wvTTesNH8Q3gjNru3LGpf'
-                                                                 'TQ7w713XqhQafHZ_4f_TnrzghM31D1S0hWePbtSQ3i-77ASxipL_u'
-                                                                 'q2bzwm7YmGrxp8W-yrZxawXQbhBJ_PcvmsQCqJmQLfTNznicQCBSh'
-                                                                 'Uz16VnvJZ3ZJYwVj9WeRJetIzkdTtAPUI6_QCZvUVL2y_-kqs0PLn'
-                                                                 'xkooAxKAp5ytB5uqt268JGgrOPbX2mgyvUNZa1KkhpQpAFtBkWQBb'
-                                                                 'Gz5etUt7pidiD9sb4KGlngzy6AYvNBgJEJdVhdlbow_38Cui0wqJG'
-                                                                 'UZ9lo4br_aXGJJEtIVlyRAchg_-3vSjxM3yx2pLxcjoRw')}
-        if os.environ['CHEF_TOKEN']:
-            self.chef_header = {'Authorization': "Bearer {}".format(os.environ['CHEF_TOKEN'])}
-        if os.environ['OWNER_TOKEN']:
-            self.owner_header = {'Authorization': "Bearer {}".format(os.environ['OWNER_TOKEN'])}
+        self.chef_header = {'Authorization': 'Bearer {}'.format('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZDV042TnNTa21jU293ajliZVMtVCJ9.eyJpc3MiOiJodHRwczovL2NocmlzLWNhbXBvcy51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NWY3Y2Q2ZGE4MTU1MWYwMDZlNDMwYmY2IiwiYXVkIjoiZmRtIiwiaWF0IjoxNjAyMDI4ODM5LCJleHAiOjE2MDIwMzYwMzksImF6cCI6IjNkQW02a1pZZmVhQ3hINmVoR1VIUjNWNk1NcmJYbGowIiwic2NvcGUiOiIiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6bWVudV9pdGVtIiwiZ2V0OmNhdGVnb3JpZXMiLCJnZXQ6bWVudV9pdGVtIiwicGF0Y2g6bWVudV9pdGVtIiwicG9zdDptZW51X2l0ZW0iXX0.JFbQTbfjOfAlQeDDOzbSO6fZ3wbW2JPU4YMcskY0ZVjL_ntWY3kPGiBabtl8brfiIYEj3VDpAUzfAD8YtjeH1OsAUDaOl_z3H06MIo0Z0p2pxA034ifiATw06KVc15lV5FWnaoPSwkEt8s22qAy9ZWdN443-qK4ziRnJOd2jo7ZmzpXtUC9yEhd2OrLlLArNf7fESmSesLKr8Tpdsonn7rSKKDQO99fuE4HJylbb6c0KGOV3-MwR723_P00RBT7N4Gng5OdFCrMJq3Zdu4EaGgjTE8MhcddOLWJTskHeUjveCvdddP_iwLz_8ya7BA-40aC6wGTSzHLMttQIwJouxQ')}
+        self.owner_header = {'Authorization': 'Bearer {}'.format('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InZDV042TnNTa21jU293ajliZVMtVCJ9.eyJpc3MiOiJodHRwczovL2NocmlzLWNhbXBvcy51cy5hdXRoMC5jb20vIiwic3ViIjoiZ29vZ2xlLW9hdXRoMnwxMTE4NDQ5MzUzNjc3ODE3Mjk3OTgiLCJhdWQiOlsiZmRtIiwiaHR0cHM6Ly9jaHJpcy1jYW1wb3MudXMuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTYwMjAyODkxOCwiZXhwIjoxNjAyMDM2MTE4LCJhenAiOiIzZEFtNmtaWWZlYUN4SDZlaEdVSFIzVjZNTXJiWGxqMCIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJwZXJtaXNzaW9ucyI6WyJkZWxldGU6Y2F0ZWdvcmllcyIsImRlbGV0ZTptZW51X2l0ZW0iLCJnZXQ6Y2F0ZWdvcmllcyIsImdldDptZW51X2l0ZW0iLCJwYXRjaDptZW51X2l0ZW0iLCJwb3N0OmNhdGVnb3JpZXMiLCJwb3N0Om1lbnVfaXRlbSJdfQ.gKSYMzVGkNoV61_QkuVEqfK_MC1TvAjFCMJMiq-TAKnvOPJXtOYtYrkVYByAzDjh05ic4D_FiVjUKT1Ov2MoPxDmjJ3boZzAWbj_PFvaCU2h9_Kixe9WE6tZRGZFKuXOAR1HO-tqJ8aZvdzHIaXD2S2mDD4ldf8u7CHDraI-crFfdcrumnmbFzt9hmvpApWGZyMAO8yKW_tTplHAH4ni65Lc_2MIfMC9gl-lISZuCNAPRQnR_XsLQhANTBtaUf64BOXTBcy1J1WWJbQmggTzQNAUPgvPJQkiC_Aw5POHIS1yrbJBtUFaEw9u9bp0doEub7C2P7Y_kg7bYPxQQ3ckgQ')}
+        #if os.environ['CHEF_TOKEN']:
+        #    self.chef_header = {'Authorization': "Bearer {}".format(os.environ['CHEF_TOKEN'])}
+        #if os.environ['OWNER_TOKEN']:
+        #    self.owner_header = {'Authorization': "Bearer {}".format(os.environ['OWNER_TOKEN'])}
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()

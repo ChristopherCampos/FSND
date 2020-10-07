@@ -6,10 +6,12 @@ import json
 database_filename = "capstone"
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_path = "sqlite:///{}".format(os.path.join(project_dir, database_filename))
+#if os.environ['DATABASE_URL']:
+database_path = os.environ['DATABASE_URL']
 db = SQLAlchemy()
 
 
-def setup_db(app, data_path=os.environ['DATABASE_URL']):
+def setup_db(app, data_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = data_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
